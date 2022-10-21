@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class EditPhoneUI extends StatefulWidget {
   const EditPhoneUI({super.key});
@@ -9,6 +10,14 @@ class EditPhoneUI extends StatefulWidget {
 }
 
 class _EditPhoneUIState extends State<EditPhoneUI> {
+
+  TextEditingController phoneCtrl = TextEditingController(text: '');
+
+  Future savePhoneToSP() async{
+    SharedPreferences prefer = await SharedPreferences.getInstance();
+    prefer.setString('yourphone', phoneCtrl.text.trim());
+  }
+
   @override
   Widget build(BuildContext context) {
 
@@ -52,6 +61,7 @@ class _EditPhoneUIState extends State<EditPhoneUI> {
                 right:  width_screen * 0.1,
               ),
               child: TextField(
+                controller: phoneCtrl,
                 decoration: InputDecoration(
                   border: OutlineInputBorder(),
                   hintText: 'ป้อนเบอร์โทรศัพท์ของคุณ...',
@@ -65,7 +75,39 @@ class _EditPhoneUIState extends State<EditPhoneUI> {
               height: width_screen * 0.05,
             ),
             ElevatedButton(
-              onPressed: () {},
+              onPressed: () {
+                if(phoneCtrl.text.trim().isEmpty){
+                  showDialog(
+                    context: context,
+                    builder: (context) {
+                      return AlertDialog(
+                        title: Text(
+                          'คำเตือน',
+                          style: GoogleFonts.kanit(),
+                        ),
+                        content: Text(
+                          'กรุณาป้อนเบอร์โทรศัพท์ด้วย',
+                        ),
+                        actions: [
+                          ElevatedButton(
+                            onPressed: (){
+                              Navigator.pop(context);
+                            },
+                            child: Text(
+                              'ตกลง',
+                            ),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.purple[800],
+                            ),
+                          ),
+                        ],
+                      );
+                    },
+                  );
+                }else{
+                  savePhoneToSP().then((value) => Navigator.pop(context));
+                }
+              },
               child: Text(
                 'บันทึก',
                 style: GoogleFonts.kanit(

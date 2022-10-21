@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class EditNameUI extends StatefulWidget {
   const EditNameUI({super.key});
@@ -9,6 +10,13 @@ class EditNameUI extends StatefulWidget {
 }
 
 class _EditNameUIState extends State<EditNameUI> {
+
+  TextEditingController nameCtrl = TextEditingController(text: '');
+
+  Future saveNameToSP() async{
+    SharedPreferences prefer = await SharedPreferences.getInstance();
+    prefer.setString('yourname', nameCtrl.text.trim());
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -53,6 +61,7 @@ class _EditNameUIState extends State<EditNameUI> {
                 right:  width_screen * 0.1,
               ),
               child: TextField(
+                controller: nameCtrl,
                 decoration: InputDecoration(
                   border: OutlineInputBorder(),
                   hintText: 'ป้อนชื่อของคุณ...',
@@ -66,7 +75,41 @@ class _EditNameUIState extends State<EditNameUI> {
               height: width_screen * 0.05,
             ),
             ElevatedButton(
-              onPressed: () {},
+              onPressed: () {
+                if(nameCtrl.text.trim().isEmpty){
+                  showDialog(
+                    context: context,
+                    builder: (context) {
+                      return AlertDialog(
+                        title: Text(
+                          'คำเตือน',
+                          style: GoogleFonts.kanit(),
+                        ),
+                        content: Text(
+                          'กรุณาป้อนชื่อด้วย',
+                          style: GoogleFonts.kanit(),
+                        ),
+                        actions: [
+                          ElevatedButton(
+                            onPressed: () {
+                              Navigator.pop(context);
+                            },
+                            child: Text(
+                              'ตกลง',
+                              style: GoogleFonts.kanit(),
+                            ),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.purple[800],
+                            ),
+                          ),
+                        ],
+                      );
+                    },
+                  );
+                }else{
+                  saveNameToSP().then((value) => Navigator.pop(context));
+                }
+              },
               child: Text(
                 'บันทึก',
                 style: GoogleFonts.kanit(
